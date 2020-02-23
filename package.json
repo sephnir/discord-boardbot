@@ -1,19 +1,28 @@
 {
   "name": "discord-boardbot",
   "version": "1.0.0",
-  "description": "",
+  "description": "Discord bot",
   "main": "index.js",
   "scripts": {
+	"start": "node -r esm index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sephnir/discord-boardbot.git"
   },
-  "author": "",
+  "author": "zoid",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/sephnir/discord-boardbot/issues"
   },
-  "homepage": "https://github.com/sephnir/discord-boardbot#readme"
+  "homepage": "https://github.com/sephnir/discord-boardbot#readme",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0",
+    "esm": "^3.2.25"
+  },
+  "devDependencies": {
+    "@discordjs/uws": "^10.149.0"
+  }
 }
