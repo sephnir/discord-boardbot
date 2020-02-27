@@ -1,10 +1,12 @@
 class Player {
 	id;
+	name;
 	pic;
 
-	constructor(id, pic) {
+	constructor(id, username, pic) {
 		this.id = id;
 		this.pic = pic;
+		this.name = username;
 	}
 
 	get id() {
@@ -15,6 +17,16 @@ class Player {
 	 */
 	set id(in_id) {
 		this._id = in_id;
+	}
+
+	get name() {
+		return this._name;
+	}
+	/**
+	 * @param {String} in_name
+	 */
+	set name(in_name) {
+		this._name = in_name;
 	}
 
 	get pic() {

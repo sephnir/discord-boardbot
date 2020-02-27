@@ -1,6 +1,6 @@
 import { Client } from "discord.js";
 import { config } from "dotenv";
-import { manage, sendInst } from "./factory";
+import { manager } from "./factory";
 
 const client = new Client();
 config();
@@ -21,10 +21,16 @@ client.on("message", message => {
 	if (message.author.id == botId) {
 		return;
 	}
-
-	message.content = message.content.replace(prefix, "");
-	let gameInst = manage(message);
-	sendInst(message.channel, gameInst);
+	try {
+		message.content = message.content.replace(prefix, "");
+		new manager(message);
+	} catch (err) {
+		errorHandling(message.channel, err);
+	}
 });
 
 client.login(token);
+
+function errorHandling(channel, error) {
+	channel.send("Error: " + error);
+}

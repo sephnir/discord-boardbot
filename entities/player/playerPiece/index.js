@@ -9,8 +9,8 @@ class PlayerPiece extends Player {
 	offsetY;
 	cell;
 
-	constructor(id, pic, offsetX, offsetY) {
-		super(id, pic);
+	constructor(id, username, pic, offsetX, offsetY) {
+		super(id, username, pic);
 		this.width = 32;
 		this.height = 32;
 		this.posX = 0;
@@ -78,6 +78,16 @@ class PlayerPiece extends Player {
 	 */
 	set offsetY(in_offsetY) {
 		this._offsetY = in_offsetY;
+	}
+
+	get cell() {
+		return this._cell;
+	}
+	/**
+	 * @param {Number} in_cell
+	 */
+	set cell(in_cell) {
+		this._cell = in_cell;
 	}
 
 	draw() {

@@ -7,43 +7,50 @@ const user = process.env.DB_USER;
 const pass = process.env.DB_PASS;
 const host = process.env.DB_HOST;
 
-const uri = `mongodb+srv://${user}:${pass}@${host}/test?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${user}:${pass}@${host}`;
+
+const client = new MongoClient(uri, {
+	poolSize: 10,
+	useNewUrlParser: true,
+	useUnifiedTopology: true
+});
 
 class DBDriver {
-	client;
-
 	constructor() {
-		this.client = new MongoClient(uri, { useNewUrlParser: true });
-	}
-
-	find(channel) {
-		let inst;
-		this.client.connect(err => {
-			const collection = this.client.db("boardbot").collection("session");
-			collection.findOne({ _id: channel }, (err, result) => {
-				if (err) throw err;
-				inst = result;
-				this.client.close();
-			});
+		client.connect(err => {
+			if (err) console.log(err);
 		});
-		return inst;
 	}
 
-	remove(channel) {
-		this.client.connect(err => {
-			const collection = this.client.db("boardbot").collection("session");
-			collection.remove({ _id: channel });
-			this.client.close();
+	find(channel, callback) {
+		let inst;
+		const collection = client.db("boardbot").collection("session");
+		collection.findOne({ _id: channel }, (err, result) => {
+			if (err) console.log(err);
+			inst = result;
+			callback(inst);
+		});
+	}
+
+	deleteOne(channel) {
+		const collection = client.db("boardbot").collection("session");
+		collection.deleteOne({ _id: channel }, (err, result) => {
+			if (err) console.log(err);
 		});
 	}
 
 	replaceOne(inst) {
-		this.client.connect(err => {
-			if (err) throw err;
-			const collection = this.client.db("boardbot").collection("session");
-			collection.replaceOne({ _id: inst._id }, inst, { upsert: true });
-			this.client.close();
-		});
+		const collection = client.db("boardbot").collection("session");
+		collection.replaceOne(
+			{ _id: inst._id },
+			inst,
+			{
+				upsert: true
+			},
+			(err, result) => {
+				if (err) console.log(err);
+			}
+		);
 	}
 }
 

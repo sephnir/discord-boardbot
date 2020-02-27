@@ -7,38 +7,15 @@ class SnakeAndLadder {
 	_id;
 	type;
 	canvas = new Canvas(map.img_src, map.width, map.height);
-	players = [];
-	playerCell = [];
+	players;
+	turn = 0;
 
 	constructor(type, channel, users) {
+		this.players = [];
 		this._id = channel;
 		this.type = type;
-		let count = -1;
-		if (users) {
-			for (let user of users) {
-				let offsetX =
-					(Math.cos((count * Math.PI) / 2 - Math.PI / 4) *
-						map.cell_width) /
-						3 -
-					32 / 2;
-				let offsetY =
-					(Math.sin((count * Math.PI) / 2 - Math.PI / 4) *
-						map.cell_height) /
-						4 -
-					32 / 2;
 
-				this.players.push(
-					new PlayerPiece(
-						user.id,
-						user.displayAvatarURL,
-						offsetX,
-						offsetY
-					)
-				);
-				count++;
-			}
-		}
-		this.update();
+		this.init(users);
 	}
 
 	get type() {
@@ -81,8 +58,92 @@ class SnakeAndLadder {
 		this._playersCell = in_playersCell;
 	}
 
-	text() {
-		return "";
+	init(users) {
+		if (users) {
+			let count = -1;
+			if (users.length > 4 || users.length < 1) {
+				return "Number of players must be between `1` to `4`.";
+			}
+
+			for (let user of users) {
+				let offsetX =
+					(Math.cos((count * Math.PI) / 2 - Math.PI / 4) *
+						map.cell_width) /
+						3 -
+					32 / 2;
+				let offsetY =
+					(Math.sin((count * Math.PI) / 2 - Math.PI / 4) *
+						map.cell_height) /
+						4 -
+					32 / 2;
+
+				this.players.push(
+					new PlayerPiece(
+						user.id,
+						user.username,
+						user.displayAvatarURL,
+						offsetX,
+						offsetY
+					)
+				);
+				count++;
+			}
+
+			this.update();
+
+			let message = `A new game has started!`;
+			for (let player of this.players) {
+				message += ` <@${player.id}>`;
+			}
+			let temp = this.players[0].id;
+			message += `\nIt is currently <@${temp}> turn. Use \`roll\` to start.`;
+			return message;
+		}
+	}
+
+	route(commands, user) {
+		switch (commands[0]) {
+			case "roll":
+				return this.roll(user);
+			default:
+				return;
+		}
+	}
+
+	roll(user) {
+		if (user.id != this.players[this.turn].id) {
+			return `It is currently <@${this.players[this.turn].id}> turn`;
+		}
+
+		let dice = 1 + Math.floor(Math.random() * 6);
+		let msg = `<@${
+			this.players[this.turn].id
+		}> has rolled a \`${dice}\`!\n`;
+
+		this.players[this.turn].cell += dice;
+		msg += this.checkJump();
+		this.turn = (this.turn + 1) % this.players.length;
+
+		this.update();
+		return msg;
+	}
+
+	checkJump() {
+		let msg = "";
+		for (let jump of map.jumps) {
+			if (this.players[this.turn].cell == jump.from) {
+				if (jump.label) {
+					msg += jump.label;
+				} else {
+					msg += `<@${
+						this.players[this.turn].id
+					}> jumped from \`${this.players[this.turn].cell +
+						1}\` to \`${jump.to + 1}\` `;
+				}
+				this.players[this.turn].cell = jump.to;
+			}
+		}
+		return msg;
 	}
 
 	update() {
